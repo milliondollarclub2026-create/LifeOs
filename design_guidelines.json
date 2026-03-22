@@ -1,0 +1,173 @@
+{
+  "identity": {
+    "name": "WealthDock",
+    "tone": "Swiss Minimalist, High-Contrast, Personal, Wealth-Oriented",
+    "description": "A personal finance command center designed to live in your dock. High-density data, zero clutter, premium aesthetics.",
+    "target_audience": "Developer/Power User (Self)",
+    "design_principles": [
+      "Data Density over Fluff: Maximize information per pixel without clutter.",
+      "Swiss Clarity: Grid-based, highly legible, objective.",
+      "Organic Wealth: Use natural tones (gold, silver, emerald) to signal value.",
+      "Interactive Joy: Charts and numbers must react to the cursor."
+    ]
+  },
+  "typography": {
+    "font_family": {
+      "heading": "\"Outfit\", sans-serif",
+      "body": "\"Plus Jakarta Sans\", sans-serif",
+      "mono": "\"JetBrains Mono\", monospace"
+    },
+    "imports": [
+      "https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+    ],
+    "scale": {
+      "h1": "text-4xl font-bold tracking-tight text-slate-900",
+      "h2": "text-2xl font-semibold tracking-tight text-slate-900",
+      "h3": "text-xl font-medium text-slate-800",
+      "body": "text-sm text-slate-600 leading-relaxed",
+      "label": "text-xs font-semibold uppercase tracking-wider text-slate-500",
+      "number_display": "font-mono tracking-tight"
+    }
+  },
+  "colors": {
+    "theme": "light",
+    "palette": {
+      "background": "#F8F9FA",
+      "surface": "#FFFFFF",
+      "primary": "#059669",
+      "primary_foreground": "#FFFFFF",
+      "secondary": "#F1F5F9",
+      "secondary_foreground": "#0F172A",
+      "accent": "#F59E0B",
+      "muted": "#94A3B8",
+      "border": "#E2E8F0",
+      "destructive": "#EF4444",
+      "success": "#10B981",
+      "income": "#10B981",
+      "expense": "#EF4444",
+      "investment": "#3B82F6"
+    },
+    "gradients": {
+      "gold": "linear-gradient(135deg, #F59E0B 0%, #D97706 100%)",
+      "silver": "linear-gradient(135deg, #E2E8F0 0%, #94A3B8 100%)",
+      "emerald": "linear-gradient(135deg, #34D399 0%, #059669 100%)"
+    }
+  },
+  "layout": {
+    "grid_system": "Bento Grid (Mode B - High Density)",
+    "spacing": {
+      "page_padding": "p-6 md:p-8",
+      "card_padding": "p-6",
+      "gap": "gap-4 md:gap-6"
+    },
+    "navigation": {
+      "type": "Sidebar (Slim)",
+      "position": "Left",
+      "width": "w-16 hover:w-64 transition-all duration-300",
+      "style": "bg-white border-r border-slate-200 h-screen sticky top-0 z-50 flex flex-col justify-between py-6 shadow-sm"
+    }
+  },
+  "components": {
+    "card": {
+      "style": "bg-white rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition-all duration-200",
+      "header": "flex justify-between items-center mb-4"
+    },
+    "button": {
+      "primary": "bg-slate-900 text-white hover:bg-slate-800 rounded-lg px-4 py-2 text-sm font-medium transition-colors shadow-sm",
+      "secondary": "bg-white text-slate-900 border border-slate-200 hover:bg-slate-50 rounded-lg px-4 py-2 text-sm font-medium transition-colors",
+      "ghost": "text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg px-3 py-2 text-sm transition-colors"
+    },
+    "chart": {
+      "library": "Recharts (via shadcn ChartContainer)",
+      "style": "minimal, clean grid lines, customized tooltips",
+      "colors": {
+        "income": "var(--color-income)",
+        "expense": "var(--color-expense)",
+        "savings": "var(--color-primary)",
+        "investment": "var(--color-investment)"
+      }
+    }
+  },
+  "icons": {
+    "library": "@phosphor-icons/react",
+    "style": "Regular (UI), Duotone (Emphasis)",
+    "installation_command": "yarn add @phosphor-icons/react",
+    "mapping": {
+      "dashboard": "SquaresFour",
+      "expenses": "Receipt",
+      "income": "TrendUp",
+      "investments": "ChartLineUp",
+      "settings": "Gear",
+      "gold": "Coins",
+      "subscriptions": "ArrowsClockwise",
+      "add": "Plus"
+    }
+  },
+  "assets": {
+    "images": [
+      {
+        "category": "investments",
+        "name": "gold_bullion",
+        "url": "https://images.unsplash.com/photo-1773168279830-afa53a3551f4?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA3MDB8MHwxfHNlYXJjaHwxfHxnb2xkJTIwYnVsbGlvbiUyMGx1eHVyeXxlbnwwfHx8fDE3NzQxODM4NDJ8MA&ixlib=rb-4.1.0&q=85",
+        "description": "Gold bars for investment card background"
+      },
+      {
+        "category": "investments",
+        "name": "silver_bar",
+        "url": "https://images.unsplash.com/photo-1773167989687-acd1ca18bb19?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMjh8MHwxfHNlYXJjaHwxfHxzaWx2ZXIlMjBiYXIlMjBsdXh1cnl8ZW58MHx8fHwxNzc0MTgzODQzfDA&ixlib=rb-4.1.0&q=85",
+        "description": "Silver bars for investment card background"
+      },
+      {
+        "category": "dashboard",
+        "name": "market_abstract",
+        "url": "https://images.unsplash.com/photo-1762279389020-eeeb69c25813?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzNzl8MHwxfHNlYXJjaHwxfHxzdG9jayUyMG1hcmtldCUyMGZpbmFuY2lhbCUyMGdyb3d0aCUyMGFic3RyYWN0fGVufDB8fHx8MTc3NDE4Mzg0NHww&ixlib=rb-4.1.0&q=85",
+        "description": "Abstract financial data lines for header background"
+      }
+    ]
+  },
+  "visual_enhancers": {
+    "glassmorphism": "backdrop-blur-md bg-white/70 border-b border-white/20",
+    "shadows": "shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.08)]",
+    "borders": "border border-slate-200/60"
+  },
+  "data_storage_guidelines": {
+    "method": "Local CSV",
+    "files": [
+      "expenses.csv",
+      "income.csv",
+      "investments.csv",
+      "subscriptions.csv"
+    ],
+    "structure": {
+      "expenses": "id,date,amount,category,description,tags,recurring_period",
+      "income": "id,date,amount,source,description,recurring_period",
+      "investments": "id,date,type,item_name,quantity_grams,price_per_unit,total_value,currency"
+    }
+  },
+  "instructions_to_main_agent": [
+    "1. INSTALLATION: Run `yarn add @phosphor-icons/react` immediately.",
+    "2. CONFIG: Update `tailwind.config.js` to include the new font families (Outfit, Plus Jakarta Sans) and colors.",
+    "3. FONTS: Add the Google Fonts import to `src/index.css`.",
+    "4. LAYOUT: Create a `Layout.js` component with the sidebar and main content area.",
+    "5. STATE: Use React Context or simple state to manage the CSV data (mocked for now, but ready for file system API or backend integration). Since the prompt mentions FastAPI backend, assume API endpoints will be built to read/write these CSVs.",
+    "6. CHARTS: Use `recharts` directly or shadcn's `Chart` components. Ensure tooltips are styled custom (white bg, shadow).",
+    "7. PAGES: Implement Dashboard, Expenses/Income, and Investments as separate routes.",
+    "8. STYLE: Strictly follow the 'Light Theme' rule. No dark mode toggles needed (force light mode in tailwind config or class).",
+    "9. NO PURPLE: Avoid any purple hues. Use Slate/Blue/Emerald instead.",
+    "10. TESTING: Add `data-testid` to all inputs, buttons, and charts."
+  ],
+  "universal_guidelines": {
+    "design": [
+      "Avoid 'AI Slop' - generic layouts. Use the Bento grid.",
+      "No centered layouts for main content - use left alignment for readability.",
+      "Use micro-interactions on all buttons (scale-95 on click).",
+      "Use sonner for toasts.",
+      "Never use emoji icons. Use Phosphor icons."
+    ],
+    "code": [
+      "Use named exports for components.",
+      "Use default exports for pages.",
+      "Prioritize shadcn components but customize the styling to match the guidelines."
+    ]
+  }
+}
