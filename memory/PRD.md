@@ -1,58 +1,66 @@
 # WealthDock - Personal Finance & Life OS Tracker
 
 ## Original Problem Statement
-Personal finance tracker with Life OS capabilities. Blue theme (no green/purple), modern typography with retro dot-matrix style, local CSV storage, calendar view for transactions, habit tracker with circular checkbox grid.
+Personal finance tracker with Life OS capabilities. Unified blue color scheme (no green/purple/gradients), modern fonts with dot-matrix style for KPIs, clean professional design, pagination, category filtering.
 
 ## Architecture
-- **Frontend**: React with Tailwind CSS, Recharts, Phosphor icons, shadcn/UI
-- **Backend**: FastAPI with CSV file storage in /app/backend/data/
-- **Fonts**: Syne (headings), DM Sans (body), Space Mono (numbers with matrix effect)
-- **Theme**: Blue primary (#3B82F6), violet accent, light mode
+- **Frontend**: React, Tailwind CSS, Recharts, Phosphor icons, shadcn/UI
+- **Backend**: FastAPI with CSV storage (/app/backend/data/)
+- **Fonts**: Syne (headings), DM Sans (body), Space Mono (monospace numbers)
+- **Color Scheme**: Blue primary (#3B82F6), Red for expenses (#EF4444)
 
-## User Personas
-- Single personal user tracking finances, investments, and daily habits
+## Design System
+- No gradients on cards or stat elements
+- Dot-matrix style for large KPI numbers
+- Consistent blue hover effects (border-color transition)
+- Clean white card backgrounds with subtle borders
+- Pagination: 25 items per page for transactions, 12 for investments
 
-## Core Requirements
-1. Dashboard with Total Wealth banner, interactive charts
-2. Calendar view showing income/expenses by date
-3. Transactions page for income/expenses with recurring options
-4. Investments page for gold, silver, stocks, property
-5. Life OS habit tracker with circular checkbox grid (30 days x habits)
-6. Progress tracking: year progress, days remaining in month/year
+## Features Implemented (March 22, 2026)
 
-## What's Been Implemented (March 22, 2026)
-- ✅ Dashboard with Total Wealth banner (blue/violet gradient)
-- ✅ Blue theme throughout (removed green)
-- ✅ Modern fonts: Syne, DM Sans, Space Mono with matrix number effect
-- ✅ 4 stat cards: Income, Expenses, Savings, Investments
-- ✅ Charts: Line (income vs expenses), Donut (spending by category), Bar (savings)
-- ✅ Calendar page with monthly view and date details panel
-- ✅ Transaction indicators on calendar (blue=income, red=expense)
-- ✅ Life OS page with year progress ring
-- ✅ Habit tracker with 7 default habits (5 prayers + Healthy Diet + Gym)
-- ✅ Circular checkbox grid for habit tracking
-- ✅ Days remaining counters (month and year)
-- ✅ Add Habit / Add Goal dialogs
-- ✅ Completion rate stats per habit
-- ✅ Demo data generator
-- ✅ CSV export functionality
+### Dashboard
+- Total Wealth banner with dot-matrix numbers
+- 4 stat cards (Income, Expenses, Savings, Investments)
+- Financial Overview chart (bars + cumulative line)
+- Spending by Category donut chart
+- Savings Trend area chart
+- Active Subscriptions list
+
+### Calendar
+- Monthly calendar with transaction indicators (bars not dots)
+- Day details panel showing income/expense breakdown
+- Monthly summary cards
+
+### Transactions
+- Expense/Income tabs
+- Search functionality
+- Pagination (25 per page)
+- Add Income/Expense dialogs with recurring options
+- Clean list view with colored indicators
+
+### Investments
+- Portfolio Breakdown horizontal bar chart (handles property dominance)
+- Investment Growth area chart
+- Category filter tabs (All, Gold, Silver, Stocks, etc.)
+- Card grid with metadata (quantity, value, date)
+- Pagination (12 per page)
+
+### Life OS
+- Year progress ring
+- Days remaining (month/year) stats
+- Full-width habit tracker grid (31 days)
+- Circular checkboxes with completion colors
+- Completion rates bar chart per habit
+- Goals management (daily/annual)
+- Default habits: 5 Prayers, Healthy Diet, Gym
 
 ## Prioritized Backlog
-### P0 (Critical)
-- None remaining
+### P1
+- Gold/silver price API integration
+- Habit streak calculation
+- Budget limits with alerts
 
-### P1 (High Priority)
-- Gold/silver price fetching API
-- Annual goals progress tracking
-- Habit streaks calculation
-
-### P2 (Medium Priority)
-- Budget limits and alerts
-- Monthly reports generation
-- Custom habit colors
+### P2
 - Dark mode toggle
-
-## Next Tasks
-1. Implement real-time gold/silver price fetching
-2. Add habit streak tracking (consecutive days)
-3. Build budget management feature
+- Data import from CSV
+- Monthly PDF reports
