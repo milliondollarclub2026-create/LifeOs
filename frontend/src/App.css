@@ -1,34 +1,161 @@
-.App-logo {
-    height: 40vmin;
-    pointer-events: none;
-}
+/* WealthDock App Styles */
 
-@media (prefers-reduced-motion: no-preference) {
-    .App-logo {
-        animation: App-logo-spin infinite 20s linear;
-    }
-}
-
-.App-header {
-    background-color: #0f0f10;
+.App {
     min-height: 100vh;
-    display: flex;
-    flex-direction: column;
+    background-color: hsl(210, 20%, 98%);
+}
+
+/* Card hover effects */
+.card-hover {
+    transition: all 0.2s ease;
+}
+
+.card-hover:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transform: translateY(-1px);
+}
+
+/* Number display */
+.number-display {
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: -0.02em;
+}
+
+/* Stat card */
+.stat-card {
+    background: white;
+    border-radius: 12px;
+    border: 1px solid hsl(214, 32%, 91%);
+    padding: 1.5rem;
+    transition: all 0.2s ease;
+}
+
+.stat-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+/* Chart container */
+.chart-container {
+    background: white;
+    border-radius: 12px;
+    border: 1px solid hsl(214, 32%, 91%);
+    padding: 1.5rem;
+}
+
+/* Income color */
+.text-income {
+    color: hsl(160, 84%, 39%);
+}
+
+/* Expense color */
+.text-expense {
+    color: hsl(0, 84%, 60%);
+}
+
+/* Investment color */
+.text-investment {
+    color: hsl(217, 91%, 60%);
+}
+
+/* Category badges */
+.category-badge {
+    display: inline-flex;
     align-items: center;
-    justify-content: center;
-    font-size: calc(10px + 2vmin);
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: capitalize;
+}
+
+/* Form styling */
+.form-input {
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-input:focus {
+    border-color: hsl(160, 84%, 39%);
+    box-shadow: 0 0 0 3px hsla(160, 84%, 39%, 0.1);
+}
+
+/* Button press effect */
+.btn-press:active {
+    transform: scale(0.97);
+}
+
+/* Sidebar link */
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    color: hsl(215, 16%, 47%);
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.sidebar-link:hover {
+    background: hsl(215, 25%, 97%);
+    color: hsl(222, 84%, 5%);
+}
+
+.sidebar-link.active {
+    background: hsl(160, 84%, 39%);
     color: white;
 }
 
-.App-link {
-    color: #61dafb;
+/* Table row hover */
+.table-row-hover:hover {
+    background: hsl(215, 25%, 97%);
 }
 
-@keyframes App-logo-spin {
+/* Donut chart center text */
+.donut-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+/* Animation for cards */
+@keyframes fadeInUp {
     from {
-        transform: rotate(0deg);
+        opacity: 0;
+        transform: translateY(10px);
     }
     to {
-        transform: rotate(360deg);
+        opacity: 1;
+        transform: translateY(0);
     }
+}
+
+.animate-fade-in-up {
+    animation: fadeInUp 0.3s ease-out forwards;
+}
+
+.animate-delay-100 {
+    animation-delay: 100ms;
+}
+
+.animate-delay-200 {
+    animation-delay: 200ms;
+}
+
+.animate-delay-300 {
+    animation-delay: 300ms;
+}
+
+/* Gradient backgrounds for investment cards */
+.gold-gradient {
+    background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+}
+
+.silver-gradient {
+    background: linear-gradient(135deg, #E2E8F0 0%, #94A3B8 100%);
+}
+
+.emerald-gradient {
+    background: linear-gradient(135deg, #34D399 0%, #059669 100%);
 }
