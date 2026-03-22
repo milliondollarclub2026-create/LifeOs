@@ -739,6 +739,26 @@ async def export_master_csv():
         headers={"Content-Disposition": "attachment; filename=wealthdock_master_export.csv"}
     )
 
+
+@api_router.get("/export/expenses")
+async def export_expenses_csv():
+    if not EXPENSES_CSV.exists():
+        raise HTTPException(status_code=404, detail="No expenses data")
+    return FileResponse(EXPENSES_CSV, media_type="text/csv", filename="expenses.csv")
+
+@api_router.get("/export/income")
+async def export_income_csv():
+    if not INCOME_CSV.exists():
+        raise HTTPException(status_code=404, detail="No income data")
+    return FileResponse(INCOME_CSV, media_type="text/csv", filename="income.csv")
+
+@api_router.get("/export/investments")
+async def export_investments_csv():
+    if not INVESTMENTS_CSV.exists():
+        raise HTTPException(status_code=404, detail="No investments data")
+    return FileResponse(INVESTMENTS_CSV, media_type="text/csv", filename="investments.csv")
+
+
 @api_router.get("/categories")
 async def get_categories():
     return {

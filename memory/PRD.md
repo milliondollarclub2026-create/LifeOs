@@ -1,52 +1,58 @@
-# WealthDock - Personal Finance Tracker
+# WealthDock - Personal Finance & Life OS Tracker
 
 ## Original Problem Statement
-Personal finance tracker Mac dock app with local CSV storage. Light themed, modern design for personal use only.
+Personal finance tracker with Life OS capabilities. Blue theme (no green/purple), modern typography with retro dot-matrix style, local CSV storage, calendar view for transactions, habit tracker with circular checkbox grid.
 
 ## Architecture
-- **Frontend**: React with Tailwind CSS, Recharts for charts, Phosphor icons, shadcn/UI components
-- **Backend**: FastAPI with CSV file storage
-- **Fonts**: Outfit (headings), Plus Jakarta Sans (body), JetBrains Mono (numbers)
-- **Data Storage**: CSV files in `/app/backend/data/` (expenses.csv, income.csv, investments.csv)
+- **Frontend**: React with Tailwind CSS, Recharts, Phosphor icons, shadcn/UI
+- **Backend**: FastAPI with CSV file storage in /app/backend/data/
+- **Fonts**: Syne (headings), DM Sans (body), Space Mono (numbers with matrix effect)
+- **Theme**: Blue primary (#3B82F6), violet accent, light mode
 
 ## User Personas
-- Single personal user tracking finances, investments, and eventually habits
+- Single personal user tracking finances, investments, and daily habits
 
 ## Core Requirements
-1. Dashboard with interactive charts (income vs expenses, savings progression, spending by category)
-2. Transactions page for income/expenses with recurring options (1, 6, 12 months)
-3. Investments page for tracking gold, silver, property, stocks with quantity units
-4. Local CSV storage with export functionality
-5. Light theme, modern clean design
+1. Dashboard with Total Wealth banner, interactive charts
+2. Calendar view showing income/expenses by date
+3. Transactions page for income/expenses with recurring options
+4. Investments page for gold, silver, stocks, property
+5. Life OS habit tracker with circular checkbox grid (30 days x habits)
+6. Progress tracking: year progress, days remaining in month/year
 
 ## What's Been Implemented (March 22, 2026)
-- ✅ Dashboard with 4 stat cards (Total Income, Expenses, Savings, Investments)
-- ✅ Interactive charts: Line chart (income vs expenses), Donut chart (spending by category), Bar chart (savings)
-- ✅ Subscriptions widget showing recurring expenses
-- ✅ Transactions page with income/expense forms, category selection, recurring options
-- ✅ Investments page with portfolio breakdown pie chart, growth timeline chart
-- ✅ Sidebar navigation with collapsible design
-- ✅ Export All CSV functionality
-- ✅ Delete functionality for all entries
-- ✅ Custom fonts (Outfit, Plus Jakarta Sans)
-- ✅ Phosphor icons throughout
+- ✅ Dashboard with Total Wealth banner (blue/violet gradient)
+- ✅ Blue theme throughout (removed green)
+- ✅ Modern fonts: Syne, DM Sans, Space Mono with matrix number effect
+- ✅ 4 stat cards: Income, Expenses, Savings, Investments
+- ✅ Charts: Line (income vs expenses), Donut (spending by category), Bar (savings)
+- ✅ Calendar page with monthly view and date details panel
+- ✅ Transaction indicators on calendar (blue=income, red=expense)
+- ✅ Life OS page with year progress ring
+- ✅ Habit tracker with 7 default habits (5 prayers + Healthy Diet + Gym)
+- ✅ Circular checkbox grid for habit tracking
+- ✅ Days remaining counters (month and year)
+- ✅ Add Habit / Add Goal dialogs
+- ✅ Completion rate stats per habit
+- ✅ Demo data generator
+- ✅ CSV export functionality
 
 ## Prioritized Backlog
 ### P0 (Critical)
 - None remaining
 
 ### P1 (High Priority)
-- Gold/Silver price fetching from web API
-- Stock price fetching (user mentioned this for future)
-- Budget limits and alerts
+- Gold/silver price fetching API
+- Annual goals progress tracking
+- Habit streaks calculation
 
-### P2 (Medium Priority)  
-- Data import from CSV
+### P2 (Medium Priority)
+- Budget limits and alerts
 - Monthly reports generation
-- Habit tracker module (user mentioned life OS expansion)
-- Custom category creation UI
+- Custom habit colors
+- Dark mode toggle
 
 ## Next Tasks
-1. Implement gold/silver price fetching via free API
-2. Add budget tracking feature
-3. Build habit tracker as next module
+1. Implement real-time gold/silver price fetching
+2. Add habit streak tracking (consecutive days)
+3. Build budget management feature
