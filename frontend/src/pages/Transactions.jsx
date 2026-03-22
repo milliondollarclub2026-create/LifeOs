@@ -255,7 +255,7 @@ export default function Transactions() {
         <div className="flex gap-3">
           <Dialog open={incomeDialogOpen} onOpenChange={setIncomeDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="gap-2 bg-emerald-600 hover:bg-emerald-700 btn-press" data-testid="add-income-btn">
+              <Button className="gap-2 btn-press" data-testid="add-income-btn">
                 <TrendUp size={18} weight="bold" />
                 Add Income
               </Button>
@@ -337,7 +337,7 @@ export default function Transactions() {
                     </SelectContent>
                   </Select>
                 </div>
-                <Button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700" data-testid="submit-income-btn">
+                <Button type="submit" className="w-full" data-testid="submit-income-btn">
                   Add Income
                 </Button>
               </form>
@@ -449,18 +449,18 @@ export default function Transactions() {
 
       {/* Summary Cards */}
       <div className="grid gap-4 md:grid-cols-2">
-        <Card className="bg-emerald-50 border-emerald-100">
+        <Card className="bg-blue-50 border-blue-100">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-emerald-700">Total Income</p>
-                <p className="mt-1 font-heading text-3xl font-bold text-emerald-900 number-display">
+                <p className="text-sm font-medium text-blue-700">Total Income</p>
+                <p className="mt-1 font-heading text-3xl font-bold text-blue-900 matrix-number">
                   {formatCurrency(totalIncome)}
                 </p>
-                <p className="mt-1 text-xs text-emerald-600">{income.length} entries</p>
+                <p className="mt-1 text-xs text-blue-600">{income.length} entries</p>
               </div>
-              <div className="rounded-full bg-emerald-100 p-3">
-                <TrendUp size={28} weight="duotone" className="text-emerald-600" />
+              <div className="icon-container bg-blue-100 p-3">
+                <TrendUp size={28} weight="duotone" className="text-blue-600" />
               </div>
             </div>
           </CardContent>
@@ -470,12 +470,12 @@ export default function Transactions() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-red-700">Total Expenses</p>
-                <p className="mt-1 font-heading text-3xl font-bold text-red-900 number-display">
+                <p className="mt-1 font-heading text-3xl font-bold text-red-900 matrix-number">
                   {formatCurrency(totalExpenses)}
                 </p>
                 <p className="mt-1 text-xs text-red-600">{expenses.length} entries</p>
               </div>
-              <div className="rounded-full bg-red-100 p-3">
+              <div className="icon-container bg-red-100 p-3">
                 <TrendDown size={28} weight="duotone" className="text-red-600" />
               </div>
             </div>
@@ -564,7 +564,7 @@ export default function Transactions() {
                         </div>
                       </div>
                       <div className="flex items-center gap-4">
-                        <p className="font-heading text-lg font-semibold text-red-600 number-display">
+                        <p className="font-heading text-lg font-semibold text-red-500 matrix-number">
                           -{formatCurrency(parseFloat(expense.amount))}
                         </p>
                         <Button
@@ -625,7 +625,7 @@ export default function Transactions() {
                         </div>
                       </div>
                       <div className="flex items-center gap-4">
-                        <p className="font-heading text-lg font-semibold text-emerald-600 number-display">
+                        <p className="font-heading text-lg font-semibold text-blue-600 matrix-number">
                           +{formatCurrency(parseFloat(inc.amount))}
                         </p>
                         <Button

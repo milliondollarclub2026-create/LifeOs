@@ -6,7 +6,9 @@ import {
   ChartLineUp,
   CaretLeft,
   CaretRight,
-  Export
+  Export,
+  Calendar,
+  Target
 } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -15,8 +17,10 @@ const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
 const navItems = [
   { path: "/", icon: SquaresFour, label: "Dashboard" },
+  { path: "/calendar", icon: Calendar, label: "Calendar" },
   { path: "/transactions", icon: Receipt, label: "Transactions" },
   { path: "/investments", icon: ChartLineUp, label: "Investments" },
+  { path: "/life-os", icon: Target, label: "Life OS" },
 ];
 
 export const Layout = () => {
@@ -40,7 +44,7 @@ export const Layout = () => {
         {/* Logo */}
         <div className="flex h-16 items-center justify-between border-b border-border px-4">
           {!collapsed && (
-            <h1 className="font-heading text-xl font-bold text-foreground">
+            <h1 className="font-heading text-xl font-bold text-foreground tracking-tight">
               WealthDock
             </h1>
           )}
@@ -70,7 +74,7 @@ export const Layout = () => {
                   "sidebar-link",
                   isActive && "active"
                 )}
-                data-testid={`nav-${item.label.toLowerCase()}`}
+                data-testid={`nav-${item.label.toLowerCase().replace(' ', '-')}`}
               >
                 <Icon size={22} weight={isActive ? "fill" : "regular"} />
                 {!collapsed && <span>{item.label}</span>}
@@ -84,7 +88,7 @@ export const Layout = () => {
           <Button
             variant="outline"
             className={cn(
-              "w-full justify-start gap-2",
+              "w-full justify-start gap-2 btn-press",
               collapsed && "justify-center px-2"
             )}
             onClick={handleExport}

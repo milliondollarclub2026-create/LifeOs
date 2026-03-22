@@ -1,1 +1,9 @@
 id,investment_type,item_name,quantity,quantity_unit,purchase_price,currency,date,notes,created_at
+4da4e733-6e02-4fc6-90d8-1e6a2ad1bd94,gold,Gold Bar 24K,100,grams,7500,USD,2025-12-20,,2026-03-22T13:18:47.912694+00:00
+c724484a-70fc-4dcc-afed-a79e1321f57a,gold,Gold Coins,50,grams,3800,USD,2025-10-06,,2026-03-22T13:18:47.912701+00:00
+f432dde5-a6fe-4f73-b7cd-70ef0d36c4af,silver,Silver Bars,500,grams,450,USD,2025-10-29,,2026-03-22T13:18:47.912710+00:00
+3daa7826-439c-4cc4-82a0-e74e6d7cc8ba,stocks,AAPL Shares,10,shares,1750,USD,2025-12-30,,2026-03-22T13:18:47.912716+00:00
+ed32bab3-da07-4f58-a894-711af29ca8cc,stocks,GOOGL Shares,5,shares,875,USD,2025-12-25,,2026-03-22T13:18:47.912722+00:00
+1f6ae445-4d98-4587-8bd6-6d52f5782070,stocks,MSFT Shares,8,shares,3200,USD,2025-09-28,,2026-03-22T13:18:47.912728+00:00
+d37f0bcb-97bd-4339-be73-42630cbd7c9c,crypto,Bitcoin,0.05,units,4500,USD,2025-12-09,,2026-03-22T13:18:47.912734+00:00
+30f52b49-062e-4759-81a1-1fb5473a936b,property,Rental Property,1,units,250000,USD,2025-09-24,,2026-03-22T13:18:47.912740+00:00

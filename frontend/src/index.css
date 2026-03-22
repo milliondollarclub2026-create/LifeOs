@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,39 +6,40 @@
 
 @layer base {
     :root {
-        --background: 210 20% 98%;
+        --background: 220 20% 97%;
         --foreground: 222 84% 5%;
         --card: 0 0% 100%;
         --card-foreground: 222 84% 5%;
         --popover: 0 0% 100%;
         --popover-foreground: 222 84% 5%;
-        --primary: 160 84% 39%;
+        --primary: 217 91% 60%;
         --primary-foreground: 0 0% 100%;
-        --secondary: 215 25% 97%;
+        --secondary: 220 14% 96%;
         --secondary-foreground: 222 84% 5%;
-        --muted: 215 25% 97%;
-        --muted-foreground: 215 16% 47%;
+        --muted: 220 14% 96%;
+        --muted-foreground: 220 9% 46%;
         --accent: 38 92% 50%;
         --accent-foreground: 0 0% 100%;
         --destructive: 0 84% 60%;
         --destructive-foreground: 0 0% 100%;
-        --border: 214 32% 91%;
-        --input: 214 32% 91%;
-        --ring: 160 84% 39%;
+        --border: 220 13% 91%;
+        --input: 220 13% 91%;
+        --ring: 217 91% 60%;
         --radius: 0.75rem;
         
-        /* Custom finance colors */
-        --income: 160 84% 39%;
-        --expense: 0 84% 60%;
-        --investment: 217 91% 60%;
-        --savings: 160 84% 39%;
+        /* Custom finance colors - Blue theme */
+        --income: 217 91% 60%;
+        --expense: 0 72% 51%;
+        --investment: 262 83% 58%;
+        --savings: 217 91% 60%;
+        --success: 142 71% 45%;
         
         /* Chart colors */
-        --chart-1: 160 84% 39%;
-        --chart-2: 0 84% 60%;
-        --chart-3: 217 91% 60%;
+        --chart-1: 217 91% 60%;
+        --chart-2: 0 72% 51%;
+        --chart-3: 262 83% 58%;
         --chart-4: 38 92% 50%;
-        --chart-5: 215 16% 47%;
+        --chart-5: 220 9% 46%;
     }
 }
 
@@ -48,14 +49,46 @@
     }
     body {
         @apply bg-background text-foreground;
-        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-family: 'DM Sans', sans-serif;
     }
     h1, h2, h3, h4, h5, h6 {
-        font-family: 'Outfit', sans-serif;
+        font-family: 'Syne', sans-serif;
     }
-    .font-mono {
-        font-family: 'JetBrains Mono', monospace;
+    .font-mono, .number-display {
+        font-family: 'Space Mono', monospace;
     }
+}
+
+/* Dotted retro text effect */
+.dotted-text {
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 0.05em;
+    background: 
+        radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0);
+    background-size: 3px 3px;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: currentColor;
+}
+
+/* Large number display with dot matrix effect */
+.matrix-number {
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    position: relative;
+}
+
+.matrix-number::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: 
+        radial-gradient(circle at 50% 50%, transparent 40%, hsl(var(--card)) 41%);
+    background-size: 4px 4px;
+    pointer-events: none;
+    opacity: 0.15;
 }
 
 /* Scrollbar styling */
@@ -87,12 +120,114 @@
     background: white;
     padding: 12px 16px;
     border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     border: 1px solid hsl(var(--border));
 }
 
+/* Clean card hover effects */
+.card-hover {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+}
+
+/* Button press effect */
+.btn-press {
+    transition: all 0.15s ease;
+}
+
+.btn-press:active {
+    transform: scale(0.97);
+}
+
+/* Icon container - clean, no gradients */
+.icon-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+}
+
+.icon-container:hover {
+    transform: scale(1.05);
+}
+
+/* Sidebar link */
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    color: hsl(var(--muted-foreground));
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    font-weight: 500;
+    position: relative;
+    overflow: hidden;
+}
+
+.sidebar-link::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: hsl(var(--primary));
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.sidebar-link:hover {
+    color: hsl(var(--foreground));
+}
+
+.sidebar-link:hover::before {
+    opacity: 0.05;
+}
+
+.sidebar-link.active {
+    background: hsl(var(--primary));
+    color: white;
+}
+
+.sidebar-link.active::before {
+    opacity: 0;
+}
+
+/* Habit tracker dot */
+.habit-dot {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid hsl(var(--border));
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.habit-dot:hover {
+    border-color: hsl(var(--primary));
+    transform: scale(1.1);
+}
+
+.habit-dot.completed {
+    background: hsl(var(--success));
+    border-color: hsl(var(--success));
+}
+
+.habit-dot.today {
+    border-color: hsl(var(--primary));
+    box-shadow: 0 0 0 3px hsl(var(--primary) / 0.2);
+}
+
+/* Progress ring */
+.progress-ring {
+    transform: rotate(-90deg);
+}
+
 /* Animation utilities */
-@keyframes slideIn {
+@keyframes fadeInUp {
     from {
         opacity: 0;
         transform: translateY(10px);
@@ -103,13 +238,102 @@
     }
 }
 
-.animate-slide-in {
-    animation: slideIn 0.3s ease-out;
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
 }
 
-/* Micro-interactions */
-.btn-press:active {
-    transform: scale(0.97);
+.animate-fade-in-up {
+    animation: fadeInUp 0.4s ease-out forwards;
+}
+
+.animate-delay-100 { animation-delay: 100ms; }
+.animate-delay-200 { animation-delay: 200ms; }
+.animate-delay-300 { animation-delay: 300ms; }
+.animate-delay-400 { animation-delay: 400ms; }
+
+/* Calendar day cell */
+.calendar-day {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    position: relative;
+}
+
+.calendar-day:hover {
+    background: hsl(var(--secondary));
+}
+
+.calendar-day.has-income::after {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: hsl(var(--income));
+}
+
+.calendar-day.has-expense::before {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    left: calc(50% - 6px);
+    transform: translateX(-50%);
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: hsl(var(--expense));
+}
+
+.calendar-day.has-income.has-expense::after {
+    left: calc(50% + 6px);
+}
+
+/* Stat card clean design */
+.stat-card {
+    background: white;
+    border-radius: 16px;
+    border: 1px solid hsl(var(--border));
+    padding: 1.5rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stat-card:hover {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+    transform: translateY(-2px);
+}
+
+/* Wealth banner */
+.wealth-banner {
+    background: linear-gradient(135deg, hsl(217 91% 60%) 0%, hsl(262 83% 58%) 100%);
+    border-radius: 20px;
+    padding: 2rem;
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.wealth-banner::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 60%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    pointer-events: none;
 }
 
 @layer base {

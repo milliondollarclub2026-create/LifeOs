@@ -7,10 +7,11 @@ import {
   PiggyBank,
   ArrowsClockwise,
   ChartDonut,
-  Receipt,
-  ChartLineUp
+  CurrencyDollar,
+  Sparkle
 } from "@phosphor-icons/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { 
   LineChart, 
   Line, 
@@ -67,24 +68,19 @@ const CustomTooltip = ({ active, payload, label }) => {
   return null;
 };
 
-const StatCard = ({ title, value, icon: Icon, trend, trendUp, color }) => (
+const StatCard = ({ title, value, icon: Icon, color, iconBg }) => (
   <Card className="stat-card animate-fade-in-up" data-testid={`stat-${title.toLowerCase().replace(/\s/g, '-')}`}>
     <CardContent className="p-6">
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             {title}
           </p>
-          <p className={`mt-2 font-heading text-3xl font-bold tracking-tight ${color || 'text-slate-900'}`}>
-            <span className="number-display">{formatCurrency(value)}</span>
+          <p className={`mt-2 font-heading text-3xl font-bold tracking-tight ${color || 'text-foreground'}`}>
+            <span className="matrix-number">{formatCurrency(value)}</span>
           </p>
-          {trend !== undefined && (
-            <p className={`mt-1 text-xs font-medium ${trendUp ? 'text-income' : 'text-expense'}`}>
-              {trendUp ? '+' : ''}{trend}% from last month
-            </p>
-          )}
         </div>
-        <div className={`rounded-xl p-3 ${color === 'text-income' ? 'bg-emerald-50' : color === 'text-expense' ? 'bg-red-50' : 'bg-slate-100'}`}>
+        <div className={`icon-container p-3 ${iconBg || 'bg-slate-100'}`}>
           <Icon size={24} weight="duotone" className={color || 'text-slate-600'} />
         </div>
       </div>
@@ -111,6 +107,15 @@ export default function Dashboard() {
     }
   };
 
+  const generateDemoData = async () => {
+    try {
+      await axios.post(`${API}/generate-demo-data`);
+      fetchDashboardData();
+    } catch (error) {
+      console.error("Failed to generate demo data:", error);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex h-[80vh] items-center justify-center" data-testid="dashboard-loading">
@@ -129,17 +134,50 @@ export default function Dashboard() {
   })) || [];
 
   const totalExpensesByCategory = pieData.reduce((sum, item) => sum + item.value, 0);
+  const hasData = summary?.expense_count > 0 || summary?.income_count > 0;
 
   return (
     <div className="space-y-6" data-testid="dashboard">
       {/* Header */}
-      <div>
-        <h1 className="font-heading text-4xl font-bold tracking-tight text-slate-900">
-          Dashboard
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Your financial overview at a glance
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="font-heading text-4xl font-bold tracking-tight text-foreground">
+            Dashboard
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Your financial overview at a glance
+          </p>
+        </div>
+        {!hasData && (
+          <Button onClick={generateDemoData} className="gap-2 btn-press" data-testid="generate-demo-btn">
+            <Sparkle size={18} weight="fill" />
+            Load Demo Data
+          </Button>
+        )}
+      </div>
+
+      {/* Wealth Banner */}
+      <div className="wealth-banner" data-testid="wealth-banner">
+        <div className="relative z-10">
+          <p className="text-sm font-medium text-white/80 uppercase tracking-wider">Total Wealth</p>
+          <p className="mt-2 font-heading text-5xl font-bold tracking-tight matrix-number">
+            {formatCurrency(summary?.total_wealth || 0)}
+          </p>
+          <div className="mt-4 flex gap-8">
+            <div>
+              <p className="text-xs text-white/60">Net Savings</p>
+              <p className="text-lg font-semibold">{formatCurrency(summary?.net_savings || 0)}</p>
+            </div>
+            <div>
+              <p className="text-xs text-white/60">Investments</p>
+              <p className="text-lg font-semibold">{formatCurrency(summary?.total_investments || 0)}</p>
+            </div>
+            <div>
+              <p className="text-xs text-white/60">Savings Rate</p>
+              <p className="text-lg font-semibold">{summary?.savings_rate?.toFixed(1) || 0}%</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Stats Grid */}
@@ -148,34 +186,38 @@ export default function Dashboard() {
           title="Total Income"
           value={summary?.total_income || 0}
           icon={TrendUp}
-          color="text-income"
+          color="text-blue-600"
+          iconBg="bg-blue-50"
         />
         <StatCard
           title="Total Expenses"
           value={summary?.total_expenses || 0}
           icon={TrendDown}
-          color="text-expense"
+          color="text-red-500"
+          iconBg="bg-red-50"
         />
         <StatCard
           title="Net Savings"
           value={summary?.net_savings || 0}
           icon={PiggyBank}
-          color={summary?.net_savings >= 0 ? "text-income" : "text-expense"}
+          color={summary?.net_savings >= 0 ? "text-blue-600" : "text-red-500"}
+          iconBg={summary?.net_savings >= 0 ? "bg-blue-50" : "bg-red-50"}
         />
         <StatCard
-          title="Total Investments"
+          title="Investments"
           value={summary?.total_investments || 0}
           icon={Wallet}
-          color="text-investment"
+          color="text-violet-600"
+          iconBg="bg-violet-50"
         />
       </div>
 
       {/* Charts Row */}
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Income vs Expenses Trend */}
-        <Card className="lg:col-span-2 chart-container" data-testid="income-expense-chart">
+        <Card className="lg:col-span-2 card-hover" data-testid="income-expense-chart">
           <CardHeader className="pb-2">
-            <CardTitle className="font-heading text-lg font-semibold text-slate-900">
+            <CardTitle className="font-heading text-lg font-semibold">
               Income vs Expenses Trend
             </CardTitle>
           </CardHeader>
@@ -201,9 +243,10 @@ export default function Dashboard() {
                   <Line 
                     type="monotone" 
                     dataKey="income" 
-                    stroke="#10B981" 
+                    stroke="#3B82F6" 
                     strokeWidth={2}
-                    dot={{ fill: '#10B981', strokeWidth: 2 }}
+                    dot={{ fill: '#3B82F6', strokeWidth: 2, r: 4 }}
+                    activeDot={{ r: 6 }}
                     name="Income"
                   />
                   <Line 
@@ -211,7 +254,8 @@ export default function Dashboard() {
                     dataKey="expense" 
                     stroke="#EF4444" 
                     strokeWidth={2}
-                    dot={{ fill: '#EF4444', strokeWidth: 2 }}
+                    dot={{ fill: '#EF4444', strokeWidth: 2, r: 4 }}
+                    activeDot={{ r: 6 }}
                     name="Expenses"
                   />
                 </LineChart>
@@ -225,10 +269,10 @@ export default function Dashboard() {
         </Card>
 
         {/* Spending by Category */}
-        <Card className="chart-container" data-testid="spending-category-chart">
+        <Card className="card-hover" data-testid="spending-category-chart">
           <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 font-heading text-lg font-semibold text-slate-900">
-              <ChartDonut size={20} weight="duotone" />
+            <CardTitle className="flex items-center gap-2 font-heading text-lg font-semibold">
+              <ChartDonut size={20} weight="duotone" className="text-muted-foreground" />
               Spending by Category
             </CardTitle>
           </CardHeader>
@@ -261,9 +305,9 @@ export default function Dashboard() {
                     />
                   </PieChart>
                 </ResponsiveContainer>
-                <div className="donut-center">
+                <div className="donut-center absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
                   <p className="text-xs text-muted-foreground">Total</p>
-                  <p className="font-heading text-lg font-bold text-slate-900 number-display">
+                  <p className="font-heading text-lg font-bold matrix-number">
                     {formatCurrency(totalExpensesByCategory)}
                   </p>
                 </div>
@@ -281,7 +325,7 @@ export default function Dashboard() {
                     className="h-2.5 w-2.5 rounded-full" 
                     style={{ backgroundColor: item.color }}
                   />
-                  <span className="capitalize text-slate-600">{item.name}</span>
+                  <span className="capitalize text-muted-foreground">{item.name}</span>
                 </div>
               ))}
             </div>
@@ -292,10 +336,10 @@ export default function Dashboard() {
       {/* Second Row */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Savings Progression */}
-        <Card className="chart-container" data-testid="savings-chart">
+        <Card className="card-hover" data-testid="savings-chart">
           <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 font-heading text-lg font-semibold text-slate-900">
-              <PiggyBank size={20} weight="duotone" />
+            <CardTitle className="flex items-center gap-2 font-heading text-lg font-semibold">
+              <PiggyBank size={20} weight="duotone" className="text-muted-foreground" />
               Savings Progression
             </CardTitle>
           </CardHeader>
@@ -319,7 +363,7 @@ export default function Dashboard() {
                   <Tooltip content={<CustomTooltip />} />
                   <Bar 
                     dataKey="savings" 
-                    fill="#059669" 
+                    fill="#3B82F6" 
                     radius={[4, 4, 0, 0]}
                     name="Savings"
                   />
@@ -334,10 +378,10 @@ export default function Dashboard() {
         </Card>
 
         {/* Subscriptions */}
-        <Card className="chart-container" data-testid="subscriptions-card">
+        <Card className="card-hover" data-testid="subscriptions-card">
           <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 font-heading text-lg font-semibold text-slate-900">
-              <ArrowsClockwise size={20} weight="duotone" />
+            <CardTitle className="flex items-center gap-2 font-heading text-lg font-semibold">
+              <ArrowsClockwise size={20} weight="duotone" className="text-muted-foreground" />
               Active Subscriptions
             </CardTitle>
           </CardHeader>
@@ -347,15 +391,15 @@ export default function Dashboard() {
                 {summary.subscriptions.map((sub, index) => (
                   <div 
                     key={index} 
-                    className="flex items-center justify-between rounded-lg bg-slate-50 p-3 transition-colors hover:bg-slate-100"
+                    className="flex items-center justify-between rounded-lg bg-secondary/50 p-3 transition-all hover:bg-secondary"
                   >
                     <div>
-                      <p className="font-medium text-slate-900">{sub.description}</p>
+                      <p className="font-medium">{sub.description}</p>
                       <p className="text-xs text-muted-foreground capitalize">
                         {sub.category} • {sub.recurring_period?.replace('_', ' ')}
                       </p>
                     </div>
-                    <p className="font-heading font-semibold text-expense number-display">
+                    <p className="font-heading font-semibold text-red-500 matrix-number">
                       {formatCurrency(parseFloat(sub.amount))}
                     </p>
                   </div>
@@ -366,55 +410,6 @@ export default function Dashboard() {
                 <p>No recurring subscriptions</p>
               </div>
             )}
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Quick Stats */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card className="bg-emerald-50 border-emerald-100">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="rounded-full bg-emerald-100 p-2">
-                <TrendUp size={20} className="text-emerald-600" weight="bold" />
-              </div>
-              <div>
-                <p className="text-xs text-emerald-700 font-medium">Savings Rate</p>
-                <p className="font-heading text-2xl font-bold text-emerald-900 number-display">
-                  {summary?.savings_rate?.toFixed(1) || 0}%
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="bg-blue-50 border-blue-100">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="rounded-full bg-blue-100 p-2">
-                <Receipt size={20} className="text-blue-600" weight="bold" />
-              </div>
-              <div>
-                <p className="text-xs text-blue-700 font-medium">Total Transactions</p>
-                <p className="font-heading text-2xl font-bold text-blue-900 number-display">
-                  {(summary?.expense_count || 0) + (summary?.income_count || 0)}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="bg-amber-50 border-amber-100">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="rounded-full bg-amber-100 p-2">
-                <ChartLineUp size={20} className="text-amber-600" weight="bold" />
-              </div>
-              <div>
-                <p className="text-xs text-amber-700 font-medium">Investment Assets</p>
-                <p className="font-heading text-2xl font-bold text-amber-900 number-display">
-                  {summary?.investment_count || 0}
-                </p>
-              </div>
-            </div>
           </CardContent>
         </Card>
       </div>
