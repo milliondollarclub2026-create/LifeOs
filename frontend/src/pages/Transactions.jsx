@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import { 
   Plus, 
@@ -7,7 +7,8 @@ import {
   TrendDown,
   ArrowsClockwise,
   MagnifyingGlass,
-  Funnel
+  CaretLeft,
+  CaretRight
 } from "@phosphor-icons/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -33,6 +34,7 @@ import { toast } from "sonner";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
+const ITEMS_PER_PAGE = 25;
 
 const EXPENSE_CATEGORIES = [
   { value: 'food', label: 'Food' },
@@ -56,28 +58,11 @@ const INCOME_SOURCES = [
 ];
 
 const RECURRING_OPTIONS = [
-  { value: 'onetime', label: 'One-time' },
+  { value: '', label: 'One-time' },
   { value: '1_month', label: 'Monthly' },
   { value: '6_months', label: 'Every 6 Months' },
   { value: '12_months', label: 'Yearly' }
 ];
-
-const CATEGORY_COLORS = {
-  food: "bg-amber-100 text-amber-700",
-  transport: "bg-blue-100 text-blue-700",
-  entertainment: "bg-pink-100 text-pink-700",
-  groceries: "bg-emerald-100 text-emerald-700",
-  health: "bg-red-100 text-red-700",
-  subscriptions: "bg-violet-100 text-violet-700",
-  utilities: "bg-indigo-100 text-indigo-700",
-  shopping: "bg-orange-100 text-orange-700",
-  other: "bg-slate-100 text-slate-700",
-  salary: "bg-emerald-100 text-emerald-700",
-  freelance: "bg-blue-100 text-blue-700",
-  investments: "bg-amber-100 text-amber-700",
-  rental: "bg-violet-100 text-violet-700",
-  business: "bg-teal-100 text-teal-700"
-};
 
 const formatCurrency = (value) => {
   return new Intl.NumberFormat('en-US', {
@@ -96,6 +81,50 @@ const formatDate = (dateStr) => {
   });
 };
 
+const Pagination = ({ currentPage, totalPages, onPageChange }) => {
+  if (totalPages <= 1) return null;
+  
+  return (
+    <div className="flex items-center justify-center gap-1 mt-4">
+      <button 
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+        className="pagination-btn"
+      >
+        <CaretLeft size={14} weight="bold" />
+      </button>
+      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+        let page;
+        if (totalPages <= 5) {
+          page = i + 1;
+        } else if (currentPage <= 3) {
+          page = i + 1;
+        } else if (currentPage >= totalPages - 2) {
+          page = totalPages - 4 + i;
+        } else {
+          page = currentPage - 2 + i;
+        }
+        return (
+          <button
+            key={page}
+            onClick={() => onPageChange(page)}
+            className={`pagination-btn ${currentPage === page ? 'active' : ''}`}
+          >
+            {page}
+          </button>
+        );
+      })}
+      <button 
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage === totalPages}
+        className="pagination-btn"
+      >
+        <CaretRight size={14} weight="bold" />
+      </button>
+    </div>
+  );
+};
+
 export default function Transactions() {
   const [expenses, setExpenses] = useState([]);
   const [income, setIncome] = useState([]);
@@ -103,25 +132,24 @@ export default function Transactions() {
   const [expenseDialogOpen, setExpenseDialogOpen] = useState(false);
   const [incomeDialogOpen, setIncomeDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterCategory, setFilterCategory] = useState("all");
+  const [expensePage, setExpensePage] = useState(1);
+  const [incomePage, setIncomePage] = useState(1);
 
-  // Expense form state
   const [expenseForm, setExpenseForm] = useState({
     amount: '',
     category: 'food',
     description: '',
     date: new Date().toISOString().split('T')[0],
     tags: '',
-    recurring_period: 'onetime'
+    recurring_period: ''
   });
 
-  // Income form state
   const [incomeForm, setIncomeForm] = useState({
     amount: '',
     source: 'salary',
     description: '',
     date: new Date().toISOString().split('T')[0],
-    recurring_period: 'onetime'
+    recurring_period: ''
   });
 
   useEffect(() => {
@@ -144,15 +172,34 @@ export default function Transactions() {
     }
   };
 
+  const filteredExpenses = useMemo(() => {
+    return expenses.filter(expense => 
+      expense.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      expense.category.toLowerCase().includes(searchQuery.toLowerCase())
+    ).sort((a, b) => new Date(b.date) - new Date(a.date));
+  }, [expenses, searchQuery]);
+
+  const filteredIncome = useMemo(() => {
+    return income.filter(inc => 
+      inc.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      inc.source.toLowerCase().includes(searchQuery.toLowerCase())
+    ).sort((a, b) => new Date(b.date) - new Date(a.date));
+  }, [income, searchQuery]);
+
+  const paginatedExpenses = filteredExpenses.slice((expensePage - 1) * ITEMS_PER_PAGE, expensePage * ITEMS_PER_PAGE);
+  const paginatedIncome = filteredIncome.slice((incomePage - 1) * ITEMS_PER_PAGE, incomePage * ITEMS_PER_PAGE);
+  
+  const expenseTotalPages = Math.ceil(filteredExpenses.length / ITEMS_PER_PAGE);
+  const incomeTotalPages = Math.ceil(filteredIncome.length / ITEMS_PER_PAGE);
+
   const handleAddExpense = async (e) => {
     e.preventDefault();
     try {
       await axios.post(`${API}/expenses`, {
         ...expenseForm,
-        amount: parseFloat(expenseForm.amount),
-        recurring_period: expenseForm.recurring_period === 'onetime' ? '' : expenseForm.recurring_period
+        amount: parseFloat(expenseForm.amount)
       });
-      toast.success("Expense added successfully");
+      toast.success("Expense added");
       setExpenseDialogOpen(false);
       setExpenseForm({
         amount: '',
@@ -160,11 +207,10 @@ export default function Transactions() {
         description: '',
         date: new Date().toISOString().split('T')[0],
         tags: '',
-        recurring_period: 'onetime'
+        recurring_period: ''
       });
       fetchData();
     } catch (error) {
-      console.error("Failed to add expense:", error);
       toast.error("Failed to add expense");
     }
   };
@@ -174,21 +220,19 @@ export default function Transactions() {
     try {
       await axios.post(`${API}/income`, {
         ...incomeForm,
-        amount: parseFloat(incomeForm.amount),
-        recurring_period: incomeForm.recurring_period === 'onetime' ? '' : incomeForm.recurring_period
+        amount: parseFloat(incomeForm.amount)
       });
-      toast.success("Income added successfully");
+      toast.success("Income added");
       setIncomeDialogOpen(false);
       setIncomeForm({
         amount: '',
         source: 'salary',
         description: '',
         date: new Date().toISOString().split('T')[0],
-        recurring_period: 'onetime'
+        recurring_period: ''
       });
       fetchData();
     } catch (error) {
-      console.error("Failed to add income:", error);
       toast.error("Failed to add income");
     }
   };
@@ -199,7 +243,7 @@ export default function Transactions() {
       toast.success("Expense deleted");
       fetchData();
     } catch (error) {
-      toast.error("Failed to delete expense");
+      toast.error("Failed to delete");
     }
   };
 
@@ -209,22 +253,9 @@ export default function Transactions() {
       toast.success("Income deleted");
       fetchData();
     } catch (error) {
-      toast.error("Failed to delete income");
+      toast.error("Failed to delete");
     }
   };
-
-  const filteredExpenses = expenses.filter(expense => {
-    const matchesSearch = expense.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         expense.category.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesFilter = filterCategory === "all" || expense.category === filterCategory;
-    return matchesSearch && matchesFilter;
-  });
-
-  const filteredIncome = income.filter(inc => {
-    const matchesSearch = inc.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         inc.source.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesSearch;
-  });
 
   const totalExpenses = expenses.reduce((sum, e) => sum + parseFloat(e.amount), 0);
   const totalIncome = income.reduce((sum, i) => sum + parseFloat(i.amount), 0);
@@ -233,8 +264,8 @@ export default function Transactions() {
     return (
       <div className="flex h-[80vh] items-center justify-center" data-testid="transactions-loading">
         <div className="text-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto"></div>
-          <p className="mt-4 text-sm text-muted-foreground">Loading transactions...</p>
+          <div className="h-8 w-8 animate-spin rounded-full border-3 border-primary border-t-transparent mx-auto"></div>
+          <p className="mt-4 text-sm text-muted-foreground">Loading...</p>
         </div>
       </div>
     );
@@ -243,20 +274,16 @@ export default function Transactions() {
   return (
     <div className="space-y-6" data-testid="transactions-page">
       {/* Header */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="font-heading text-4xl font-bold tracking-tight text-slate-900">
-            Transactions
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Manage your income and expenses
-          </p>
+          <h1 className="font-heading text-3xl font-bold text-foreground">Transactions</h1>
+          <p className="text-sm text-muted-foreground mt-1">Manage income and expenses</p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex gap-2">
           <Dialog open={incomeDialogOpen} onOpenChange={setIncomeDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="gap-2 btn-press" data-testid="add-income-btn">
-                <TrendUp size={18} weight="bold" />
+              <Button className="gap-2" data-testid="add-income-btn">
+                <TrendUp size={16} weight="bold" />
                 Add Income
               </Button>
             </DialogTrigger>
@@ -267,9 +294,8 @@ export default function Transactions() {
               </DialogHeader>
               <form onSubmit={handleAddIncome} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="income-amount">Amount ($)</Label>
+                  <Label>Amount ($)</Label>
                   <Input
-                    id="income-amount"
                     type="number"
                     step="0.01"
                     placeholder="0.00"
@@ -280,28 +306,18 @@ export default function Transactions() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="income-source">Source</Label>
-                  <Select 
-                    value={incomeForm.source} 
-                    onValueChange={(value) => setIncomeForm({ ...incomeForm, source: value })}
-                  >
-                    <SelectTrigger data-testid="income-source-select">
-                      <SelectValue />
-                    </SelectTrigger>
+                  <Label>Source</Label>
+                  <Select value={incomeForm.source} onValueChange={(v) => setIncomeForm({ ...incomeForm, source: v })}>
+                    <SelectTrigger data-testid="income-source-select"><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      {INCOME_SOURCES.map(source => (
-                        <SelectItem key={source.value} value={source.value}>
-                          {source.label}
-                        </SelectItem>
-                      ))}
+                      {INCOME_SOURCES.map(s => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="income-description">Description</Label>
+                  <Label>Description</Label>
                   <Input
-                    id="income-description"
-                    placeholder="Monthly salary, freelance project..."
+                    placeholder="Monthly salary..."
                     value={incomeForm.description}
                     onChange={(e) => setIncomeForm({ ...incomeForm, description: e.target.value })}
                     required
@@ -309,9 +325,8 @@ export default function Transactions() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="income-date">Date</Label>
+                  <Label>Date</Label>
                   <Input
-                    id="income-date"
                     type="date"
                     value={incomeForm.date}
                     onChange={(e) => setIncomeForm({ ...incomeForm, date: e.target.value })}
@@ -320,34 +335,23 @@ export default function Transactions() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="income-recurring">Recurring</Label>
-                  <Select 
-                    value={incomeForm.recurring_period} 
-                    onValueChange={(value) => setIncomeForm({ ...incomeForm, recurring_period: value })}
-                  >
-                    <SelectTrigger data-testid="income-recurring-select">
-                      <SelectValue placeholder="One-time" />
-                    </SelectTrigger>
+                  <Label>Recurring</Label>
+                  <Select value={incomeForm.recurring_period} onValueChange={(v) => setIncomeForm({ ...incomeForm, recurring_period: v })}>
+                    <SelectTrigger><SelectValue placeholder="One-time" /></SelectTrigger>
                     <SelectContent>
-                      {RECURRING_OPTIONS.map(opt => (
-                        <SelectItem key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </SelectItem>
-                      ))}
+                      {RECURRING_OPTIONS.map(o => <SelectItem key={o.value || 'onetime'} value={o.value}>{o.label}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>
-                <Button type="submit" className="w-full" data-testid="submit-income-btn">
-                  Add Income
-                </Button>
+                <Button type="submit" className="w-full" data-testid="submit-income-btn">Add Income</Button>
               </form>
             </DialogContent>
           </Dialog>
 
           <Dialog open={expenseDialogOpen} onOpenChange={setExpenseDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" className="gap-2 border-red-200 text-red-600 hover:bg-red-50 btn-press" data-testid="add-expense-btn">
-                <TrendDown size={18} weight="bold" />
+              <Button variant="outline" className="gap-2" data-testid="add-expense-btn">
+                <TrendDown size={16} weight="bold" />
                 Add Expense
               </Button>
             </DialogTrigger>
@@ -358,9 +362,8 @@ export default function Transactions() {
               </DialogHeader>
               <form onSubmit={handleAddExpense} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="expense-amount">Amount ($)</Label>
+                  <Label>Amount ($)</Label>
                   <Input
-                    id="expense-amount"
                     type="number"
                     step="0.01"
                     placeholder="0.00"
@@ -371,28 +374,18 @@ export default function Transactions() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="expense-category">Category</Label>
-                  <Select 
-                    value={expenseForm.category} 
-                    onValueChange={(value) => setExpenseForm({ ...expenseForm, category: value })}
-                  >
-                    <SelectTrigger data-testid="expense-category-select">
-                      <SelectValue />
-                    </SelectTrigger>
+                  <Label>Category</Label>
+                  <Select value={expenseForm.category} onValueChange={(v) => setExpenseForm({ ...expenseForm, category: v })}>
+                    <SelectTrigger data-testid="expense-category-select"><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      {EXPENSE_CATEGORIES.map(cat => (
-                        <SelectItem key={cat.value} value={cat.value}>
-                          {cat.label}
-                        </SelectItem>
-                      ))}
+                      {EXPENSE_CATEGORIES.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="expense-description">Description</Label>
+                  <Label>Description</Label>
                   <Input
-                    id="expense-description"
-                    placeholder="Lunch, groceries, Netflix..."
+                    placeholder="Lunch, groceries..."
                     value={expenseForm.description}
                     onChange={(e) => setExpenseForm({ ...expenseForm, description: e.target.value })}
                     required
@@ -400,9 +393,8 @@ export default function Transactions() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="expense-date">Date</Label>
+                  <Label>Date</Label>
                   <Input
-                    id="expense-date"
                     type="date"
                     value={expenseForm.date}
                     onChange={(e) => setExpenseForm({ ...expenseForm, date: e.target.value })}
@@ -411,177 +403,125 @@ export default function Transactions() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="expense-tags">Tags (optional)</Label>
-                  <Input
-                    id="expense-tags"
-                    placeholder="work, personal, urgent..."
-                    value={expenseForm.tags}
-                    onChange={(e) => setExpenseForm({ ...expenseForm, tags: e.target.value })}
-                    data-testid="expense-tags-input"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="expense-recurring">Recurring</Label>
-                  <Select 
-                    value={expenseForm.recurring_period} 
-                    onValueChange={(value) => setExpenseForm({ ...expenseForm, recurring_period: value })}
-                  >
-                    <SelectTrigger data-testid="expense-recurring-select">
-                      <SelectValue placeholder="One-time" />
-                    </SelectTrigger>
+                  <Label>Recurring</Label>
+                  <Select value={expenseForm.recurring_period} onValueChange={(v) => setExpenseForm({ ...expenseForm, recurring_period: v })}>
+                    <SelectTrigger><SelectValue placeholder="One-time" /></SelectTrigger>
                     <SelectContent>
-                      {RECURRING_OPTIONS.map(opt => (
-                        <SelectItem key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </SelectItem>
-                      ))}
+                      {RECURRING_OPTIONS.map(o => <SelectItem key={o.value || 'onetime'} value={o.value}>{o.label}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>
-                <Button type="submit" className="w-full bg-red-600 hover:bg-red-700" data-testid="submit-expense-btn">
-                  Add Expense
-                </Button>
+                <Button type="submit" className="w-full" data-testid="submit-expense-btn">Add Expense</Button>
               </form>
             </DialogContent>
           </Dialog>
         </div>
       </div>
 
-      {/* Summary Cards */}
+      {/* Summary Cards - Clean */}
       <div className="grid gap-4 md:grid-cols-2">
-        <Card className="bg-blue-50 border-blue-100">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-blue-700">Total Income</p>
-                <p className="mt-1 font-heading text-3xl font-bold text-blue-900 matrix-number">
-                  {formatCurrency(totalIncome)}
-                </p>
-                <p className="mt-1 text-xs text-blue-600">{income.length} entries</p>
-              </div>
-              <div className="icon-container bg-blue-100 p-3">
-                <TrendUp size={28} weight="duotone" className="text-blue-600" />
-              </div>
+        <div className="stat-card">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Total Income</p>
+              <p className="mt-1 font-heading text-3xl font-bold text-primary number-display">
+                {formatCurrency(totalIncome)}
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">{income.length} entries</p>
             </div>
-          </CardContent>
-        </Card>
-        <Card className="bg-red-50 border-red-100">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-red-700">Total Expenses</p>
-                <p className="mt-1 font-heading text-3xl font-bold text-red-900 matrix-number">
-                  {formatCurrency(totalExpenses)}
-                </p>
-                <p className="mt-1 text-xs text-red-600">{expenses.length} entries</p>
-              </div>
-              <div className="icon-container bg-red-100 p-3">
-                <TrendDown size={28} weight="duotone" className="text-red-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Transactions Tabs */}
-      <Tabs defaultValue="expenses" className="space-y-4">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <TabsList className="grid w-full max-w-md grid-cols-2">
-            <TabsTrigger value="expenses" data-testid="expenses-tab">
-              <TrendDown size={16} className="mr-2" />
-              Expenses
-            </TabsTrigger>
-            <TabsTrigger value="income" data-testid="income-tab">
-              <TrendUp size={16} className="mr-2" />
-              Income
-            </TabsTrigger>
-          </TabsList>
-
-          {/* Search & Filter */}
-          <div className="flex gap-2">
-            <div className="relative">
-              <MagnifyingGlass size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder="Search transactions..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-64 pl-10"
-                data-testid="search-input"
-              />
+            <div className="p-3 rounded-lg bg-secondary">
+              <TrendUp size={24} weight="duotone" className="text-primary" />
             </div>
           </div>
         </div>
+        <div className="stat-card">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Total Expenses</p>
+              <p className="mt-1 font-heading text-3xl font-bold text-destructive number-display">
+                {formatCurrency(totalExpenses)}
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">{expenses.length} entries</p>
+            </div>
+            <div className="p-3 rounded-lg bg-secondary">
+              <TrendDown size={24} weight="duotone" className="text-destructive" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Search */}
+      <div className="relative max-w-md">
+        <MagnifyingGlass size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          placeholder="Search transactions..."
+          value={searchQuery}
+          onChange={(e) => { setSearchQuery(e.target.value); setExpensePage(1); setIncomePage(1); }}
+          className="pl-10"
+          data-testid="search-input"
+        />
+      </div>
+
+      {/* Tabs */}
+      <Tabs defaultValue="expenses" className="space-y-4">
+        <TabsList className="grid w-full max-w-xs grid-cols-2">
+          <TabsTrigger value="expenses" data-testid="expenses-tab">Expenses</TabsTrigger>
+          <TabsTrigger value="income" data-testid="income-tab">Income</TabsTrigger>
+        </TabsList>
 
         {/* Expenses Tab */}
         <TabsContent value="expenses">
-          <Card>
+          <Card className="card-clean">
             <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="font-heading text-lg">All Expenses</CardTitle>
-                <Select value={filterCategory} onValueChange={setFilterCategory}>
-                  <SelectTrigger className="w-40" data-testid="filter-category-select">
-                    <Funnel size={16} className="mr-2" />
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Categories</SelectItem>
-                    {EXPENSE_CATEGORIES.map(cat => (
-                      <SelectItem key={cat.value} value={cat.value}>
-                        {cat.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              <CardTitle className="font-heading text-base font-semibold">
+                All Expenses ({filteredExpenses.length})
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              {filteredExpenses.length > 0 ? (
-                <div className="space-y-2">
-                  {filteredExpenses.map((expense) => (
-                    <div 
-                      key={expense.id} 
-                      className="flex items-center justify-between rounded-lg border border-slate-100 bg-white p-4 transition-colors hover:bg-slate-50"
-                      data-testid={`expense-item-${expense.id}`}
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className={`rounded-full p-2 ${CATEGORY_COLORS[expense.category] || CATEGORY_COLORS.other}`}>
-                          <TrendDown size={18} weight="bold" />
-                        </div>
-                        <div>
-                          <p className="font-medium text-slate-900">{expense.description}</p>
-                          <div className="flex items-center gap-2 mt-1">
-                            <span className={`category-badge ${CATEGORY_COLORS[expense.category] || CATEGORY_COLORS.other}`}>
-                              {expense.category}
-                            </span>
-                            <span className="text-xs text-muted-foreground">{formatDate(expense.date)}</span>
-                            {expense.recurring_period && (
-                              <span className="flex items-center gap-1 text-xs text-violet-600">
-                                <ArrowsClockwise size={12} />
-                                {expense.recurring_period.replace('_', ' ')}
-                              </span>
-                            )}
+              {paginatedExpenses.length > 0 ? (
+                <>
+                  <div className="space-y-1">
+                    {paginatedExpenses.map((expense) => (
+                      <div key={expense.id} className="table-row flex items-center justify-between p-3" data-testid={`expense-item-${expense.id}`}>
+                        <div className="flex items-center gap-3">
+                          <div className="w-1 h-8 rounded-full bg-destructive" />
+                          <div>
+                            <p className="font-medium text-sm">{expense.description}</p>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              <span className="text-xs text-muted-foreground capitalize">{expense.category}</span>
+                              <span className="text-xs text-muted-foreground">•</span>
+                              <span className="text-xs text-muted-foreground">{formatDate(expense.date)}</span>
+                              {expense.recurring_period && (
+                                <>
+                                  <span className="text-xs text-muted-foreground">•</span>
+                                  <span className="text-xs text-primary flex items-center gap-1">
+                                    <ArrowsClockwise size={10} />
+                                    {expense.recurring_period.replace('_', ' ')}
+                                  </span>
+                                </>
+                              )}
+                            </div>
                           </div>
                         </div>
+                        <div className="flex items-center gap-3">
+                          <p className="font-semibold text-destructive number-display">
+                            -{formatCurrency(parseFloat(expense.amount))}
+                          </p>
+                          <button
+                            onClick={() => handleDeleteExpense(expense.id)}
+                            className="p-1.5 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+                            data-testid={`delete-expense-${expense.id}`}
+                          >
+                            <Trash size={16} />
+                          </button>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-4">
-                        <p className="font-heading text-lg font-semibold text-red-500 matrix-number">
-                          -{formatCurrency(parseFloat(expense.amount))}
-                        </p>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-slate-400 hover:text-red-600"
-                          onClick={() => handleDeleteExpense(expense.id)}
-                          data-testid={`delete-expense-${expense.id}`}
-                        >
-                          <Trash size={18} />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                  <Pagination currentPage={expensePage} totalPages={expenseTotalPages} onPageChange={setExpensePage} />
+                </>
               ) : (
-                <div className="flex h-40 items-center justify-center text-muted-foreground">
+                <div className="flex h-32 items-center justify-center text-muted-foreground text-sm">
                   <p>No expenses found</p>
                 </div>
               )}
@@ -591,59 +531,58 @@ export default function Transactions() {
 
         {/* Income Tab */}
         <TabsContent value="income">
-          <Card>
+          <Card className="card-clean">
             <CardHeader className="pb-3">
-              <CardTitle className="font-heading text-lg">All Income</CardTitle>
+              <CardTitle className="font-heading text-base font-semibold">
+                All Income ({filteredIncome.length})
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              {filteredIncome.length > 0 ? (
-                <div className="space-y-2">
-                  {filteredIncome.map((inc) => (
-                    <div 
-                      key={inc.id} 
-                      className="flex items-center justify-between rounded-lg border border-slate-100 bg-white p-4 transition-colors hover:bg-slate-50"
-                      data-testid={`income-item-${inc.id}`}
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className={`rounded-full p-2 ${CATEGORY_COLORS[inc.source] || 'bg-emerald-100 text-emerald-700'}`}>
-                          <TrendUp size={18} weight="bold" />
-                        </div>
-                        <div>
-                          <p className="font-medium text-slate-900">{inc.description}</p>
-                          <div className="flex items-center gap-2 mt-1">
-                            <span className={`category-badge ${CATEGORY_COLORS[inc.source] || 'bg-emerald-100 text-emerald-700'}`}>
-                              {inc.source}
-                            </span>
-                            <span className="text-xs text-muted-foreground">{formatDate(inc.date)}</span>
-                            {inc.recurring_period && (
-                              <span className="flex items-center gap-1 text-xs text-violet-600">
-                                <ArrowsClockwise size={12} />
-                                {inc.recurring_period.replace('_', ' ')}
-                              </span>
-                            )}
+              {paginatedIncome.length > 0 ? (
+                <>
+                  <div className="space-y-1">
+                    {paginatedIncome.map((inc) => (
+                      <div key={inc.id} className="table-row flex items-center justify-between p-3" data-testid={`income-item-${inc.id}`}>
+                        <div className="flex items-center gap-3">
+                          <div className="w-1 h-8 rounded-full bg-primary" />
+                          <div>
+                            <p className="font-medium text-sm">{inc.description}</p>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              <span className="text-xs text-muted-foreground capitalize">{inc.source}</span>
+                              <span className="text-xs text-muted-foreground">•</span>
+                              <span className="text-xs text-muted-foreground">{formatDate(inc.date)}</span>
+                              {inc.recurring_period && (
+                                <>
+                                  <span className="text-xs text-muted-foreground">•</span>
+                                  <span className="text-xs text-primary flex items-center gap-1">
+                                    <ArrowsClockwise size={10} />
+                                    {inc.recurring_period.replace('_', ' ')}
+                                  </span>
+                                </>
+                              )}
+                            </div>
                           </div>
                         </div>
+                        <div className="flex items-center gap-3">
+                          <p className="font-semibold text-primary number-display">
+                            +{formatCurrency(parseFloat(inc.amount))}
+                          </p>
+                          <button
+                            onClick={() => handleDeleteIncome(inc.id)}
+                            className="p-1.5 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+                            data-testid={`delete-income-${inc.id}`}
+                          >
+                            <Trash size={16} />
+                          </button>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-4">
-                        <p className="font-heading text-lg font-semibold text-blue-600 matrix-number">
-                          +{formatCurrency(parseFloat(inc.amount))}
-                        </p>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-slate-400 hover:text-red-600"
-                          onClick={() => handleDeleteIncome(inc.id)}
-                          data-testid={`delete-income-${inc.id}`}
-                        >
-                          <Trash size={18} />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                  <Pagination currentPage={incomePage} totalPages={incomeTotalPages} onPageChange={setIncomePage} />
+                </>
               ) : (
-                <div className="flex h-40 items-center justify-center text-muted-foreground">
-                  <p>No income entries found</p>
+                <div className="flex h-32 items-center justify-center text-muted-foreground text-sm">
+                  <p>No income found</p>
                 </div>
               )}
             </CardContent>
