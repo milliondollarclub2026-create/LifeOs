@@ -241,8 +241,8 @@
 
 /* Habit Tracker Dot */
 .habit-dot {
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 22px;
     border-radius: 50%;
     border: 2px solid hsl(var(--border));
     background: white;
@@ -253,7 +253,8 @@
 
 .habit-dot:hover {
     border-color: hsl(var(--primary));
-    transform: scale(1.1);
+    transform: scale(1.15);
+    box-shadow: 0 0 0 3px hsl(var(--primary) / 0.1);
 }
 
 .habit-dot.completed {
@@ -263,12 +264,20 @@
 
 .habit-dot.today {
     border-color: hsl(var(--primary));
-    box-shadow: 0 0 0 3px hsl(var(--primary) / 0.2);
+    border-width: 2px;
+    box-shadow: 0 0 0 2px hsl(var(--primary) / 0.2);
 }
 
 .habit-dot.missed {
-    border-color: hsl(var(--destructive) / 0.3);
+    border-color: hsl(var(--destructive) / 0.4);
     background: hsl(var(--destructive) / 0.05);
+}
+
+.habit-dot.future {
+    border-color: hsl(var(--border));
+    background: hsl(var(--secondary) / 0.5);
+    opacity: 0.4;
+    cursor: not-allowed;
 }
 
 /* Progress Ring */
@@ -292,28 +301,30 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    border-radius: 8px;
+    border-radius: 10px;
     font-size: 0.875rem;
     font-weight: 500;
-    transition: all 0.15s ease;
+    transition: all 0.2s ease;
     cursor: pointer;
     border: 1px solid transparent;
     position: relative;
+    background: transparent;
 }
 
 .calendar-day:hover {
     background: hsl(var(--secondary));
-    border-color: hsl(var(--border));
+    transform: scale(1.05);
 }
 
 .calendar-day.selected {
-    background: hsl(var(--primary));
+    background: hsl(var(--foreground));
     color: white;
-    border-color: hsl(var(--primary));
+    border-color: hsl(var(--foreground));
+    transform: scale(1.05);
 }
 
 .calendar-day.today {
-    border-color: hsl(var(--primary));
+    border: 2px solid hsl(var(--primary));
     font-weight: 700;
 }
 

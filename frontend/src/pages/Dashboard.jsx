@@ -7,7 +7,8 @@ import {
   PiggyBank,
   ArrowsClockwise,
   ChartDonut,
-  Sparkle
+  Sparkle,
+  CurrencyDollar
 } from "@phosphor-icons/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -22,10 +23,8 @@ import {
   PieChart,
   Pie,
   Cell,
-  ComposedChart,
-  Bar,
-  Line,
-  Legend
+  BarChart,
+  Bar
 } from "recharts";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -52,13 +51,19 @@ const formatCurrency = (value) => {
   }).format(value);
 };
 
+const formatCompactCurrency = (value) => {
+  if (value >= 1000000) return `$${(value / 1000000).toFixed(1)}M`;
+  if (value >= 1000) return `$${(value / 1000).toFixed(0)}k`;
+  return `$${value}`;
+};
+
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="custom-tooltip">
-        <p className="text-sm font-semibold text-foreground mb-1">{label}</p>
+      <div className="bg-white px-3 py-2 rounded-lg shadow-lg border border-border text-sm">
+        <p className="font-medium text-foreground mb-1">{label}</p>
         {payload.map((entry, index) => (
-          <p key={index} className="text-sm" style={{ color: entry.color }}>
+          <p key={index} style={{ color: entry.color }}>
             {entry.name}: {formatCurrency(entry.value)}
           </p>
         ))}
@@ -77,7 +82,7 @@ const StatCard = ({ title, value, icon: Icon, type }) => {
   };
   
   return (
-    <div className="stat-card animate-in" data-testid={`stat-${title.toLowerCase().replace(/\s/g, '-')}`}>
+    <div className="stat-card" data-testid={`stat-${title.toLowerCase().replace(/\s/g, '-')}`}>
       <div className="flex items-start justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
@@ -88,7 +93,7 @@ const StatCard = ({ title, value, icon: Icon, type }) => {
           </p>
         </div>
         <div className="p-2.5 rounded-lg bg-secondary">
-          <Icon size={22} weight="duotone" className="text-muted-foreground" />
+          <Icon size={20} weight="duotone" className="text-muted-foreground" />
         </div>
       </div>
     </div>
@@ -143,14 +148,13 @@ export default function Dashboard() {
   const totalExpensesByCategory = pieData.reduce((sum, item) => sum + item.value, 0);
   const hasData = summary?.expense_count > 0 || summary?.income_count > 0;
 
-  // Enhanced chart data with cumulative savings
-  const chartData = summary?.monthly_trend?.map((item, index, arr) => {
-    const cumulativeSavings = arr.slice(0, index + 1).reduce((sum, i) => sum + i.savings, 0);
-    return {
-      ...item,
-      cumulativeSavings
-    };
-  }) || [];
+  // Simplified chart - just monthly savings trend
+  const savingsData = summary?.monthly_trend?.map(item => ({
+    month: item.month,
+    savings: item.savings,
+    income: item.income,
+    expense: item.expense
+  })) || [];
 
   return (
     <div className="space-y-6" data-testid="dashboard">
@@ -168,32 +172,45 @@ export default function Dashboard() {
         )}
       </div>
 
-      {/* Total Wealth Banner - Clean, no gradient */}
-      <div className="kpi-banner" data-testid="wealth-banner">
-        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-          Total Wealth
-        </p>
-        <p className="dot-matrix dot-matrix-lg text-primary">
-          {formatCurrency(summary?.total_wealth || 0)}
-        </p>
-        <div className="mt-6 flex gap-8 flex-wrap">
-          <div>
-            <p className="text-xs text-muted-foreground mb-1">Net Savings</p>
-            <p className="font-heading text-xl font-bold text-foreground number-display">
-              {formatCurrency(summary?.net_savings || 0)}
-            </p>
+      {/* Total Wealth Banner - Redesigned for visibility */}
+      <div className="relative overflow-hidden rounded-2xl border-2 border-primary bg-white p-6" data-testid="wealth-banner">
+        <div className="absolute top-0 right-0 w-48 h-48 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-32 h-32 bg-primary/5 rounded-full translate-y-1/2 -translate-x-1/2" />
+        
+        <div className="relative z-10">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-3 rounded-xl bg-primary">
+              <CurrencyDollar size={24} weight="bold" className="text-white" />
+            </div>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Total Wealth</p>
+              <p className="text-xs text-muted-foreground">Net Savings + Investments</p>
+            </div>
           </div>
-          <div>
-            <p className="text-xs text-muted-foreground mb-1">Investments</p>
-            <p className="font-heading text-xl font-bold text-foreground number-display">
-              {formatCurrency(summary?.total_investments || 0)}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-muted-foreground mb-1">Savings Rate</p>
-            <p className="font-heading text-xl font-bold text-primary number-display">
-              {summary?.savings_rate?.toFixed(1) || 0}%
-            </p>
+          
+          <p className="font-heading text-5xl font-bold text-foreground tracking-tight">
+            {formatCurrency(summary?.total_wealth || 0)}
+          </p>
+          
+          <div className="mt-6 grid grid-cols-3 gap-6 pt-6 border-t border-border">
+            <div>
+              <p className="text-xs text-muted-foreground mb-1">Net Savings</p>
+              <p className="font-heading text-xl font-bold text-foreground number-display">
+                {formatCurrency(summary?.net_savings || 0)}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground mb-1">Investments</p>
+              <p className="font-heading text-xl font-bold text-foreground number-display">
+                {formatCurrency(summary?.total_investments || 0)}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground mb-1">Savings Rate</p>
+              <p className="font-heading text-xl font-bold text-primary number-display">
+                {summary?.savings_rate?.toFixed(1) || 0}%
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -207,20 +224,20 @@ export default function Dashboard() {
       </div>
 
       {/* Charts Row */}
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Combined Income/Expense/Savings Chart */}
-        <Card className="lg:col-span-2 card-clean" data-testid="main-chart">
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Monthly Income vs Expenses - Clean Bar Chart */}
+        <Card className="card-clean" data-testid="income-expense-chart">
           <CardHeader className="pb-2">
-            <CardTitle className="font-heading text-base font-semibold">Financial Overview</CardTitle>
+            <CardTitle className="font-heading text-base font-semibold">Monthly Income vs Expenses</CardTitle>
           </CardHeader>
           <CardContent>
-            {chartData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={300}>
-                <ComposedChart data={chartData}>
+            {savingsData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={280}>
+                <BarChart data={savingsData} barGap={4}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
                   <XAxis 
                     dataKey="month" 
-                    tick={{ fontSize: 12, fill: '#6B7280' }}
+                    tick={{ fontSize: 11, fill: '#6B7280' }}
                     axisLine={false}
                     tickLine={false}
                     tickFormatter={(value) => {
@@ -229,33 +246,32 @@ export default function Dashboard() {
                     }}
                   />
                   <YAxis 
-                    tick={{ fontSize: 12, fill: '#6B7280' }}
+                    tick={{ fontSize: 11, fill: '#6B7280' }}
                     axisLine={false}
                     tickLine={false}
-                    tickFormatter={(value) => `$${value >= 1000 ? `${(value/1000).toFixed(0)}k` : value}`}
+                    tickFormatter={(value) => formatCompactCurrency(value)}
                   />
                   <Tooltip content={<CustomTooltip />} />
-                  <Legend 
-                    wrapperStyle={{ paddingTop: '20px' }}
-                    formatter={(value) => <span className="text-sm text-muted-foreground">{value}</span>}
-                  />
-                  <Bar dataKey="income" fill="#3B82F6" radius={[4, 4, 0, 0]} name="Income" barSize={20} />
-                  <Bar dataKey="expense" fill="#EF4444" radius={[4, 4, 0, 0]} name="Expenses" barSize={20} />
-                  <Line 
-                    type="monotone" 
-                    dataKey="cumulativeSavings" 
-                    stroke="#1D4ED8" 
-                    strokeWidth={2}
-                    dot={{ fill: '#1D4ED8', strokeWidth: 0, r: 4 }}
-                    name="Cumulative Savings"
-                  />
-                </ComposedChart>
+                  <Bar dataKey="income" fill="#3B82F6" radius={[4, 4, 0, 0]} name="Income" maxBarSize={32} />
+                  <Bar dataKey="expense" fill="#EF4444" radius={[4, 4, 0, 0]} name="Expenses" maxBarSize={32} />
+                </BarChart>
               </ResponsiveContainer>
             ) : (
-              <div className="flex h-[300px] items-center justify-center text-muted-foreground">
+              <div className="flex h-[280px] items-center justify-center text-muted-foreground text-sm">
                 <p>Add transactions to see chart</p>
               </div>
             )}
+            {/* Legend */}
+            <div className="flex justify-center gap-6 mt-4 pt-3 border-t border-border">
+              <div className="flex items-center gap-2 text-xs">
+                <div className="w-3 h-3 rounded bg-primary" />
+                <span className="text-muted-foreground">Income</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs">
+                <div className="w-3 h-3 rounded bg-destructive" />
+                <span className="text-muted-foreground">Expenses</span>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
@@ -299,7 +315,7 @@ export default function Dashboard() {
                 </div>
               </div>
             ) : (
-              <div className="flex h-[220px] items-center justify-center text-muted-foreground">
+              <div className="flex h-[220px] items-center justify-center text-muted-foreground text-sm">
                 <p>No expense data</p>
               </div>
             )}
@@ -316,9 +332,9 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      {/* Second Row - Savings Chart & Subscriptions */}
+      {/* Second Row */}
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Savings Trend - Improved Area Chart */}
+        {/* Savings Trend */}
         <Card className="card-clean" data-testid="savings-chart">
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 font-heading text-base font-semibold">
@@ -327,19 +343,19 @@ export default function Dashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {chartData.length > 0 ? (
+            {savingsData.length > 0 ? (
               <ResponsiveContainer width="100%" height={220}>
-                <AreaChart data={chartData}>
+                <AreaChart data={savingsData}>
                   <defs>
                     <linearGradient id="savingsGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#3B82F6" stopOpacity={0.3}/>
+                      <stop offset="0%" stopColor="#3B82F6" stopOpacity={0.2}/>
                       <stop offset="100%" stopColor="#3B82F6" stopOpacity={0}/>
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
                   <XAxis 
                     dataKey="month" 
-                    tick={{ fontSize: 12, fill: '#6B7280' }}
+                    tick={{ fontSize: 11, fill: '#6B7280' }}
                     axisLine={false}
                     tickLine={false}
                     tickFormatter={(value) => {
@@ -348,10 +364,10 @@ export default function Dashboard() {
                     }}
                   />
                   <YAxis 
-                    tick={{ fontSize: 12, fill: '#6B7280' }}
+                    tick={{ fontSize: 11, fill: '#6B7280' }}
                     axisLine={false}
                     tickLine={false}
-                    tickFormatter={(value) => `$${value >= 1000 ? `${(value/1000).toFixed(0)}k` : value}`}
+                    tickFormatter={(value) => formatCompactCurrency(value)}
                   />
                   <Tooltip content={<CustomTooltip />} />
                   <Area 
@@ -360,21 +376,20 @@ export default function Dashboard() {
                     stroke="#3B82F6" 
                     strokeWidth={2}
                     fill="url(#savingsGradient)"
-                    dot={{ fill: '#3B82F6', strokeWidth: 0, r: 4 }}
-                    activeDot={{ r: 6, stroke: '#3B82F6', strokeWidth: 2, fill: 'white' }}
-                    name="Monthly Savings"
+                    dot={{ fill: '#3B82F6', strokeWidth: 0, r: 3 }}
+                    name="Savings"
                   />
                 </AreaChart>
               </ResponsiveContainer>
             ) : (
-              <div className="flex h-[220px] items-center justify-center text-muted-foreground">
+              <div className="flex h-[220px] items-center justify-center text-muted-foreground text-sm">
                 <p>Add transactions to track savings</p>
               </div>
             )}
           </CardContent>
         </Card>
 
-        {/* Subscriptions - Clean */}
+        {/* Subscriptions */}
         <Card className="card-clean" data-testid="subscriptions-card">
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 font-heading text-base font-semibold">
@@ -388,7 +403,7 @@ export default function Dashboard() {
                 {summary.subscriptions.map((sub, index) => (
                   <div 
                     key={index} 
-                    className="flex items-center justify-between p-3 rounded-lg border border-border hover:border-primary/20 transition-colors"
+                    className="flex items-center justify-between p-3 rounded-lg border border-border hover:border-primary/30 transition-colors"
                   >
                     <div>
                       <p className="font-medium text-sm">{sub.description}</p>
@@ -403,7 +418,7 @@ export default function Dashboard() {
                 ))}
               </div>
             ) : (
-              <div className="flex h-[220px] items-center justify-center text-muted-foreground">
+              <div className="flex h-[220px] items-center justify-center text-muted-foreground text-sm">
                 <p>No recurring subscriptions</p>
               </div>
             )}

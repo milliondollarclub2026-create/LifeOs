@@ -1,9 +1,11 @@
-id,amount,source,description,date,recurring_period,created_at
-7cb9dc4a-5f5b-4fb5-88ac-df08ad180e9c,5500,salary,Monthly Salary,2026-03-01,1_month,2026-03-22T13:18:47.912640+00:00
-ad11c4fe-ab09-466d-aac7-8d0fb63fd66e,886.28,freelance,Freelance project,2026-03-07,,2026-03-22T13:18:47.912648+00:00
-9e10bd3f-c9c7-4f53-8f63-7cb4b39e69f5,5500,salary,Monthly Salary,2026-02-01,1_month,2026-03-22T13:18:47.912655+00:00
-07e47ff0-035e-4b6f-bdc4-42d18f052545,5500,salary,Monthly Salary,2026-01-01,1_month,2026-03-22T13:18:47.912662+00:00
-a6f2ef98-a575-4bb5-ae37-ddb7c2b03280,5500,salary,Monthly Salary,2025-12-01,1_month,2026-03-22T13:18:47.912668+00:00
-503bec8b-c5e0-4240-baff-608c9945add4,5500,salary,Monthly Salary,2025-11-01,1_month,2026-03-22T13:18:47.912674+00:00
-383749e1-70f3-49fd-a046-8dc4489a497e,756.13,freelance,Freelance project,2025-11-09,,2026-03-22T13:18:47.912681+00:00
-7eccd5cf-98b9-4df1-9b4b-ba9776fe23a6,5500,salary,Monthly Salary,2025-10-01,1_month,2026-03-22T13:18:47.912687+00:00
+id,amount,source,description,date,notes,recurring_period,created_at
+3cf09eca-afb7-4b51-96bf-4425b0161923,5500,salary,Monthly Salary,2026-03-01,,1_month,2026-03-22T13:46:15.061652+00:00
+0f2927e5-687d-4daf-a992-5b4c56382fbc,803.95,freelance,Freelance project,2026-03-17,,,2026-03-22T13:46:15.061661+00:00
+d3f841f2-247a-43a6-956d-3d263aea390c,5500,salary,Monthly Salary,2026-02-01,,1_month,2026-03-22T13:46:15.061668+00:00
+2da76115-2dff-4aa0-8feb-2e73f5858d49,5500,salary,Monthly Salary,2026-01-01,,1_month,2026-03-22T13:46:15.061674+00:00
+12259f73-a5b4-4ed0-b3ff-165ba3508ffe,5500,salary,Monthly Salary,2025-12-01,,1_month,2026-03-22T13:46:15.061681+00:00
+32863242-c769-42c4-9fe5-91779cf1fbb4,556.73,freelance,Freelance project,2025-12-25,,,2026-03-22T13:46:15.061687+00:00
+3dca4d28-889a-4d63-93e7-91165af037dc,5500,salary,Monthly Salary,2025-11-01,,1_month,2026-03-22T13:46:15.061694+00:00
+6c3cf1d1-6ab4-4db3-b728-a44e02f77d12,1849.42,freelance,Freelance project,2025-11-13,,,2026-03-22T13:46:15.061701+00:00
+878cca67-9e80-4b1b-b69f-da6043f0d9b6,5500,salary,Monthly Salary,2025-10-01,,1_month,2026-03-22T13:46:15.061707+00:00
+7c9f3a3c-d236-4faa-a501-efbb574bec08,1630.48,freelance,Freelance project,2025-10-18,,,2026-03-22T13:46:15.061714+00:00

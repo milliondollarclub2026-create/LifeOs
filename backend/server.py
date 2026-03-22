@@ -42,6 +42,7 @@ class ExpenseCreate(BaseModel):
     description: str
     date: str
     tags: Optional[str] = ""
+    notes: Optional[str] = ""
     recurring_period: Optional[str] = None
 
 class Expense(BaseModel):
@@ -51,6 +52,7 @@ class Expense(BaseModel):
     description: str
     date: str
     tags: str
+    notes: str
     recurring_period: Optional[str] = None
     created_at: str
 
@@ -59,6 +61,7 @@ class IncomeCreate(BaseModel):
     source: str
     description: str
     date: str
+    notes: Optional[str] = ""
     recurring_period: Optional[str] = None
 
 class Income(BaseModel):
@@ -67,6 +70,7 @@ class Income(BaseModel):
     source: str
     description: str
     date: str
+    notes: str
     recurring_period: Optional[str] = None
     created_at: str
 
@@ -136,12 +140,12 @@ def init_csv_files():
     if not EXPENSES_CSV.exists():
         with open(EXPENSES_CSV, 'w', newline='') as f:
             writer = csv.writer(f)
-            writer.writerow(['id', 'amount', 'category', 'description', 'date', 'tags', 'recurring_period', 'created_at'])
+            writer.writerow(['id', 'amount', 'category', 'description', 'date', 'tags', 'notes', 'recurring_period', 'created_at'])
     
     if not INCOME_CSV.exists():
         with open(INCOME_CSV, 'w', newline='') as f:
             writer = csv.writer(f)
-            writer.writerow(['id', 'amount', 'source', 'description', 'date', 'recurring_period', 'created_at'])
+            writer.writerow(['id', 'amount', 'source', 'description', 'date', 'notes', 'recurring_period', 'created_at'])
     
     if not INVESTMENTS_CSV.exists():
         with open(INVESTMENTS_CSV, 'w', newline='') as f:
@@ -196,8 +200,8 @@ def generate_demo_data():
         return {"message": "Demo data already exists"}
     
     # Clear existing data
-    fieldnames_exp = ['id', 'amount', 'category', 'description', 'date', 'tags', 'recurring_period', 'created_at']
-    fieldnames_inc = ['id', 'amount', 'source', 'description', 'date', 'recurring_period', 'created_at']
+    fieldnames_exp = ['id', 'amount', 'category', 'description', 'date', 'tags', 'notes', 'recurring_period', 'created_at']
+    fieldnames_inc = ['id', 'amount', 'source', 'description', 'date', 'notes', 'recurring_period', 'created_at']
     fieldnames_inv = ['id', 'investment_type', 'item_name', 'quantity', 'quantity_unit', 'purchase_price', 'currency', 'date', 'notes', 'created_at']
     fieldnames_hab = ['id', 'name', 'category', 'color', 'created_at']
     fieldnames_log = ['id', 'habit_id', 'date', 'completed', 'created_at']
@@ -253,6 +257,7 @@ def generate_demo_data():
                 'description': template[1],
                 'date': date.strftime('%Y-%m-%d'),
                 'tags': '',
+                'notes': '',
                 'recurring_period': recurring,
                 'created_at': datetime.now(timezone.utc).isoformat()
             })
@@ -274,6 +279,7 @@ def generate_demo_data():
             'source': 'salary',
             'description': 'Monthly Salary',
             'date': month_date.replace(day=1).strftime('%Y-%m-%d'),
+            'notes': '',
             'recurring_period': '1_month',
             'created_at': datetime.now(timezone.utc).isoformat()
         })
@@ -286,6 +292,7 @@ def generate_demo_data():
                 'source': 'freelance',
                 'description': 'Freelance project',
                 'date': month_date.replace(day=random.randint(5, 25)).strftime('%Y-%m-%d'),
+                'notes': '',
                 'recurring_period': '',
                 'created_at': datetime.now(timezone.utc).isoformat()
             })
@@ -389,10 +396,11 @@ async def create_expense(expense: ExpenseCreate):
         'description': expense.description,
         'date': expense.date,
         'tags': expense.tags or "",
+        'notes': expense.notes or "",
         'recurring_period': expense.recurring_period or "",
         'created_at': datetime.now(timezone.utc).isoformat()
     }
-    fieldnames = ['id', 'amount', 'category', 'description', 'date', 'tags', 'recurring_period', 'created_at']
+    fieldnames = ['id', 'amount', 'category', 'description', 'date', 'tags', 'notes', 'recurring_period', 'created_at']
     append_to_csv(EXPENSES_CSV, expense_dict, fieldnames)
     return expense_dict
 
@@ -400,7 +408,7 @@ async def create_expense(expense: ExpenseCreate):
 async def delete_expense(expense_id: str):
     expenses = read_csv_as_dicts(EXPENSES_CSV)
     expenses = [e for e in expenses if e['id'] != expense_id]
-    fieldnames = ['id', 'amount', 'category', 'description', 'date', 'tags', 'recurring_period', 'created_at']
+    fieldnames = ['id', 'amount', 'category', 'description', 'date', 'tags', 'notes', 'recurring_period', 'created_at']
     rewrite_csv(EXPENSES_CSV, expenses, fieldnames)
     return {"message": "Expense deleted"}
 
@@ -419,10 +427,11 @@ async def create_income(income: IncomeCreate):
         'source': income.source,
         'description': income.description,
         'date': income.date,
+        'notes': income.notes or "",
         'recurring_period': income.recurring_period or "",
         'created_at': datetime.now(timezone.utc).isoformat()
     }
-    fieldnames = ['id', 'amount', 'source', 'description', 'date', 'recurring_period', 'created_at']
+    fieldnames = ['id', 'amount', 'source', 'description', 'date', 'notes', 'recurring_period', 'created_at']
     append_to_csv(INCOME_CSV, income_dict, fieldnames)
     return income_dict
 
@@ -430,7 +439,7 @@ async def create_income(income: IncomeCreate):
 async def delete_income(income_id: str):
     income = read_csv_as_dicts(INCOME_CSV)
     income = [i for i in income if i['id'] != income_id]
-    fieldnames = ['id', 'amount', 'source', 'description', 'date', 'recurring_period', 'created_at']
+    fieldnames = ['id', 'amount', 'source', 'description', 'date', 'notes', 'recurring_period', 'created_at']
     rewrite_csv(INCOME_CSV, income, fieldnames)
     return {"message": "Income deleted"}
 
@@ -667,24 +676,61 @@ async def get_life_os_summary():
     days_remaining_month = (month_end - today).days
     year_progress = (days_passed / days_in_year) * 100
     
-    # Habit completion stats
+    # Helper to calculate streak
+    def calculate_streak(habit_id):
+        habit_dates = sorted([l['date'] for l in logs if l['habit_id'] == habit_id and l['completed'] == 'True'], reverse=True)
+        if not habit_dates:
+            return 0
+        streak = 0
+        check_date = today
+        for _ in range(365):  # Max 1 year
+            date_str = check_date.strftime('%Y-%m-%d')
+            if date_str in habit_dates:
+                streak += 1
+                check_date -= timedelta(days=1)
+            else:
+                break
+        return streak
+    
+    # Calculate overall streak (days where ALL habits were completed)
+    def calculate_overall_streak():
+        if not habits:
+            return 0
+        habit_ids = [h['id'] for h in habits]
+        streak = 0
+        check_date = today
+        for _ in range(365):
+            date_str = check_date.strftime('%Y-%m-%d')
+            completed_on_date = [l['habit_id'] for l in logs if l['date'] == date_str and l['completed'] == 'True']
+            if all(hid in completed_on_date for hid in habit_ids):
+                streak += 1
+                check_date -= timedelta(days=1)
+            else:
+                break
+        return streak
+    
+    # Habit completion stats with streaks
     habit_stats = []
     for habit in habits:
         habit_logs = [l for l in logs if l['habit_id'] == habit['id'] and l['completed'] == 'True']
         completion_rate = (len(habit_logs) / days_passed * 100) if days_passed > 0 else 0
+        streak = calculate_streak(habit['id'])
         habit_stats.append({
             'id': habit['id'],
             'name': habit['name'],
             'category': habit['category'],
             'color': habit['color'],
             'total_completions': len(habit_logs),
-            'completion_rate': round(completion_rate, 1)
+            'completion_rate': round(completion_rate, 1),
+            'streak': streak
         })
     
     # Today's completion
     today_str = today.strftime('%Y-%m-%d')
     today_logs = [l for l in logs if l['date'] == today_str]
     today_completed = len(today_logs)
+    
+    overall_streak = calculate_overall_streak()
     
     return {
         'days_remaining_month': days_remaining_month,
@@ -695,6 +741,7 @@ async def get_life_os_summary():
         'goals': goals,
         'today_completed': today_completed,
         'total_habits': len(habits),
+        'overall_streak': overall_streak,
         'logs': logs
     }
 
